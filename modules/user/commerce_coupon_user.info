@@ -1,4 +1,5 @@
 name = Commerce Coupon User
 description = Associate coupons with specific users
-core = 7.x
+backdrop = 1.x
+type = module
 dependencies[] = commerce_coupon

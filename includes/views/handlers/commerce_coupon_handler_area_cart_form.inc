@@ -58,7 +58,7 @@ class commerce_coupon_handler_area_cart_form extends views_handler_area {
   function options_validate(&$form, &$form_state) {
     $weight = $form_state['values']['options']['weight'];
     // Weight must be an integer:
-    if (!is_null($weight )&& (!is_numeric($weight)) || (int) $weight != $weight) {
+    if (!is_null($weight ) && (!is_numeric($weight)) || (int) $weight != $weight) {
       form_set_error('options][weight', t('!name field must be an integer.', array('!name' => $form['weight']['#title'])));
     }
   }
@@ -78,7 +78,7 @@ class commerce_coupon_handler_area_cart_form extends views_handler_area {
 
   function views_form(&$form, &$form_state) {
     // Ensure this include file is loaded when the form is rebuilt from the cache.
-    $form_state['build_info']['files']['coupon_cart_form'] = drupal_get_path('module', 'commerce_coupon') . '/includes/views/handlers/commerce_coupon_handler_area_cart_form.inc';
+    $form_state['build_info']['files']['coupon_cart_form'] = backdrop_get_path('module', 'commerce_coupon') . '/includes/views/handlers/commerce_coupon_handler_area_cart_form.inc';
 
     $form[$this->options['id']] = array(
       '#prefix' => '<div id="commerce-coupon-cart-form-wrapper">',
@@ -116,7 +116,7 @@ class commerce_coupon_handler_area_cart_form extends views_handler_area {
         }
       }
     }
-    $order = !empty($order_id) ? commerce_order_load($order_id) : commerce_cart_order_load($GLOBALS['user']->uid);
+    $order = !empty($order_id)?commerce_order_load($order_id) : commerce_cart_order_load($GLOBALS['user']->uid);
 
     // Extract the View and display keys from the cart contents pane setting.
     $coupon_summary_view = $this->options['coupon_cart_form_view'];
@@ -139,8 +139,8 @@ function commerce_coupon_handler_area_cart_form_validate($form, $form_state) {
   // Get the form and values for the coupon form.
   $coupon_array_parents = array_slice($form_state['triggering_element']['#array_parents'], 0, -1);
   $coupon_parents = array_slice($form_state['triggering_element']['#parents'], 0, -1);
-  $coupon_values = drupal_array_get_nested_value($form_state['values'], $coupon_parents);
-  $coupon_form = drupal_array_get_nested_value($form, $coupon_array_parents);
+  $coupon_values = backdrop_array_get_nested_value($form_state['values'], $coupon_parents);
+  $coupon_form = backdrop_array_get_nested_value($form, $coupon_array_parents);
   $coupon_code  = $coupon_values['coupon_code'];
   $order = $form_state['order'];
 
@@ -172,7 +172,7 @@ function commerce_coupon_handler_area_cart_form_validate($form, $form_state) {
   // discounts failed their conditions), an error message will have been
   // set.
   if (empty($error)) {
-    $error = &drupal_static('commerce_coupon_error_' . strtolower($coupon_code));
+    $error = &backdrop_static('commerce_coupon_error_' . strtolower($coupon_code));
   }
 
   // If we have errors set the form error.
@@ -190,7 +190,7 @@ function commerce_coupon_handler_area_cart_form_validate($form, $form_state) {
 function commerce_coupon_handler_area_cart_form_submit($form, $form_state) {
   // Get the values for the coupon form.
   $coupon_parents = array_slice($form_state['triggering_element']['#parents'], 0, -1);
-  $coupon_values = drupal_array_get_nested_value($form_state['values'], $coupon_parents);
+  $coupon_values = backdrop_array_get_nested_value($form_state['values'], $coupon_parents);
   $coupon_code  = $coupon_values['coupon_code'];
   $order = $form_state['order'];
 
@@ -203,7 +203,7 @@ function commerce_coupon_handler_area_cart_form_submit($form, $form_state) {
   // Error found during redeem.
   if (!empty($error)) {
     watchdog('commerce_coupon', 'An error occurred redeeming a coupon: @error', array('@error' => $error), WATCHDOG_ERROR);
-    drupal_set_message(t('Unable to redeem coupon.'), 'error');
+    backdrop_set_message(t('Unable to redeem coupon.'), 'error');
     commerce_coupon_remove_coupon_from_order($order, $coupon);
   }
 

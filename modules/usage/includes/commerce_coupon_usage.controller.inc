@@ -8,7 +8,7 @@
 /**
  * Coupon usage transaction controller class.
  */
-class CommerceCouponUsageTransactionEntityController extends DrupalCommerceEntityController {
+class CommerceCouponUsageTransactionEntityController extends BackdropCommerceEntityController {
 
   public $transaction_id;
 

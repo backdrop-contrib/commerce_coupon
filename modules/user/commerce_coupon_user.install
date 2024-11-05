@@ -5,7 +5,7 @@
  * Installation tasks for Commerce Coupon User.
  */
 
-/*
+/**
  * Implements hook_install().
  */
 function commerce_coupon_user_install() {
@@ -52,7 +52,7 @@ function _commerce_coupon_user_install_helper() {
   }
 }
 
-/*
+/**
  * Implements hook_uninstall().
  */
 function commerce_coupon_user_uninstall() {

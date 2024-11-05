@@ -1,0 +1,126 @@
+{
+  "_config_name": "views.view.coupon_usage",
+  "name": "coupon_usage",
+  "description": "Summary of coupon usage",
+  "tag": "default",
+  "disabled": false,
+  "base_table": "commerce_coupon_usage_transaction",
+  "human_name": "Coupon usage",
+  "core": 7,
+  "display": {
+    "default": {
+      "display_title": "Master",
+      "display_plugin": "default",
+      "display_options": {
+        "query": {
+          "type": "views_query",
+          "options": []
+        },
+        "title": "Coupon usage",
+        "use_more_always": false,
+        "access": {
+          "type": "perm",
+          "perm": "administer commerce_coupon entities"
+        },
+        "cache": {
+          "type": "none"
+        },
+        "exposed_form": {
+          "type": "basic"
+        },
+        "pager": {
+          "type": "full",
+          "options": {
+            "items_per_page": "10"
+          }
+        },
+        "style_plugin": "table",
+        "header": {
+          "usage_summary_area": {
+            "id": "usage_summary_area",
+            "table": "commerce_coupon",
+            "field": "usage_summary_area"
+          }
+        },
+        "relationships": {
+          "order_id": {
+            "id": "order_id",
+            "table": "commerce_coupon_usage_transaction",
+            "field": "order_id",
+            "required": true
+          },
+          "coupon_id": {
+            "id": "coupon_id",
+            "table": "commerce_coupon_usage_transaction",
+            "field": "coupon_id",
+            "required": true
+          }
+        },
+        "fields": {
+          "date": {
+            "id": "date",
+            "table": "commerce_coupon_usage_transaction",
+            "field": "date",
+            "date_format": "medium"
+          },
+          "order_number": {
+            "id": "order_number",
+            "table": "commerce_order",
+            "field": "order_number",
+            "relationship": "order_id",
+            "exclude": true,
+            "alter": {
+              "text": "Order [order_number]"
+            }
+          },
+          "view_order": {
+            "id": "view_order",
+            "table": "commerce_order",
+            "field": "view_order",
+            "relationship": "order_id",
+            "label": "Order number",
+            "alter": {
+              "alter_text": true,
+              "text": "[order_number] | [view_order]"
+            },
+            "text": "view order"
+          }
+        },
+        "arguments": {
+          "coupon_id": {
+            "id": "coupon_id",
+            "table": "commerce_coupon_usage_transaction",
+            "field": "coupon_id",
+            "default_action": "empty",
+            "default_argument_type": "fixed",
+            "summary": {
+              "number_of_records": "0",
+              "format": "default_summary"
+            },
+            "summary_options": {
+              "items_per_page": "25"
+            }
+          }
+        }
+      }
+    },
+    "page": {
+      "display_title": "Page",
+      "display_plugin": "page",
+      "display_options": {
+        "query": {
+          "type": "views_query",
+          "options": []
+        },
+        "path": "admin/commerce/coupons/%/usage",
+        "menu": {
+          "type": "tab",
+          "title": "Usage",
+          "weight": "100",
+          "context": 1,
+          "context_only_inline": 0
+        }
+      }
+    }
+  }
+}

@@ -70,13 +70,13 @@ function commerce_coupon_user_commerce_coupon_access_query_substitute($query, $b
 
   if (!isset($recipient_table)) {
     $recipient_table = 'field_data_commerce_coupon_recipient';
-    $join_condition = $recipient_table . '.commerce_coupon_recipient_target_id=:uid AND ' . $recipient_table. '.entity_id=' . $base_table . '.coupon_id';
+    $join_condition = $recipient_table . '.commerce_coupon_recipient_target_id=:uid AND ' . $recipient_table . '.entity_id=' . $base_table . '.coupon_id';
     $query->leftJoin($recipient_table, $recipient_table, $join_condition, array(':uid' => $account->uid,));
   }
 
   // Do not apply any conditions for users with administrative view permissions.
   if (user_access('administer commerce_coupon entities', $account)
-    || user_access('view any commerce_coupon entity', $account)) {
+     || user_access('view any commerce_coupon entity', $account)) {
     return;
   }
 
@@ -155,7 +155,7 @@ function commerce_coupon_user_commerce_coupon_access_query_substitute($query, $b
   );
 
   // Allow other modules to add conditions to the array as necessary.
-  drupal_alter($hooks, $conditions, $context);
+  backdrop_alter($hooks, $conditions, $context);
 
   // If we have more than one condition based on the entity access permissions
   // and any hook implementations...
@@ -233,7 +233,7 @@ function commerce_coupon_user_commerce_coupon_coupon_entity_form_alter(&$form, &
   $lang = field_language('commerce_coupon', $coupon, 'commerce_coupon_recipient');
   if (!empty($form['commerce_coupon_fields']['commerce_coupon_recipient'][$lang])) {
     foreach (element_children($form['commerce_coupon_fields']['commerce_coupon_recipient'][$lang]) as $delta) {
-      $default_value =& $form['commerce_coupon_fields']['commerce_coupon_recipient'][$lang][$delta]['target_id']['#default_value'];
+      $default_value = &$form['commerce_coupon_fields']['commerce_coupon_recipient'][$lang][$delta]['target_id']['#default_value'];
       if ($default_value == 'Anonymous (0)') {
         // It is important to actually keep this field empty, even if the user
         // chose anonymous for some reason.

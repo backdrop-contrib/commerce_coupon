@@ -117,7 +117,7 @@ function _commerce_coupon_update_coupons_multipass(array &$sandbox, $drush) {
           $coupon->commerce_discount_reference[$lang][] = array('target_id' => $discount->discount_id);
 
           // Allow other modules to alter the coupon before it is saved.
-          drupal_alter('commerce_coupon_update_pre_update', $original_coupon, $coupon, $discount);
+          backdrop_alter('commerce_coupon_update_pre_update', $original_coupon, $coupon, $discount);
           commerce_coupon_save($coupon);
         }
       }
@@ -175,7 +175,7 @@ function _commerce_coupon_update_orders_multipass(&$sandbox, $drush) {
         $order_wrapper->commerce_coupons = $order_wrapper->commerce_coupon_order_reference->value();
 
         // Allow modules to alter the order before it is saved.
-        drupal_alter('commerce_coupon_update_order_pre_update', $original_order, $order);
+        backdrop_alter('commerce_coupon_update_order_pre_update', $original_order, $order);
 
         if (module_exists('commerce_coupon_usage')) {
           $statuses = array_merge(commerce_order_statuses(array('state' => 'pending')), commerce_order_statuses(array('state' => 'completed')));

@@ -2,9 +2,12 @@
 
 /**
  * @file
- * Implements hook_entity_property_info_alter().
+ * Entity info
  */
 
+/**
+ * Implements hook_entity_property_info_alter().
+ */
 function commerce_coupon_usage_entity_property_info_alter(&$info) {
   if (isset($info['commerce_coupon'])) {
     $info['commerce_coupon']['properties']['max_usage']  = array(

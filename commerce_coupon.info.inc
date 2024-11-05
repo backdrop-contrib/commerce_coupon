@@ -38,7 +38,7 @@ class CommerceCouponMetadataController extends EntityDefaultMetadataController {
 
     $properties['status']['type'] = 'boolean';
 
-    $schema = drupal_get_schema('commerce_coupon');
+    $schema = backdrop_get_schema('commerce_coupon');
 
     foreach ($properties as $name => $property) {
       if (isset($schema['fields'][$name])) {

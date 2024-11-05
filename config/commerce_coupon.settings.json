@@ -1,0 +1,6 @@
+{
+    "_config_name": "commerce_coupon.settings",
+    "commerce_coupon_discount_coupon_default_code_size": 8,
+    "commerce_coupon_checkout_pane_view": "order_coupon_list|checkout",
+    "commerce_coupon_review_pane_view": "order_coupon_list|checkout"
+}

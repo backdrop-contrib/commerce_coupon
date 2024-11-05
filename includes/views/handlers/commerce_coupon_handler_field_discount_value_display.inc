@@ -53,7 +53,7 @@ class commerce_coupon_handler_field_discount_value_display extends views_handler
         // for each coupon that has a discount.
         foreach ($discounts as $discount) {
           $display = '';
-          drupal_alter('commerce_coupon_discount_value_display', $display, $discount, $order);
+          backdrop_alter('commerce_coupon_discount_value_display', $display, $discount, $order);
           if ($display) {
             $items[] = $display;
           }
@@ -69,7 +69,7 @@ class commerce_coupon_handler_field_discount_value_display extends views_handler
       }
 
       // Allow modules to alter the entire row.
-      drupal_alter('commerce_coupon_value_display', $output, $coupon, $order);
+      backdrop_alter('commerce_coupon_value_display', $output, $coupon, $order);
       return $output;
     }
   }

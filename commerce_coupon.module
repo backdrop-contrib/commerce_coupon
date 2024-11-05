@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Provides coupon functionality for Drupal Commerce.
+ * Provides coupon functionality for Backdrop Commerce.
  */
 
 /**
@@ -65,7 +65,7 @@ function commerce_coupon_entity_info_alter(&$entity_info) {
  * Gets a list of all coupon types by invoking a hook.
  */
 function commerce_coupon_get_types($reset = FALSE) {
-  $cache = &drupal_static('commerce_coupon_type_info');
+  $cache = &backdrop_static('commerce_coupon_type_info');
 
   if (!isset($cache) || $reset) {
     $cache = module_invoke_all('commerce_coupon_type_info');
@@ -200,7 +200,7 @@ function commerce_coupon_menu() {
     // Edit page.
     $items['admin/commerce/coupons/types/' . $type_arg] = array(
       'title' => $coupon_type['label'],
-      'page callback' => 'drupal_get_form',
+      'page callback' => 'backdrop_get_form',
       'page arguments' => array('commerce_coupon_type_settings_form', $coupon_type),
       'access arguments' => array('administer commerce_coupon entities'),
       'file' => 'includes/commerce_coupon.admin.inc',
@@ -230,7 +230,7 @@ function commerce_coupon_menu() {
       'title' => 'Edit conditions component',
       'description' => 'Add or remove conditions from the component that is evaluated to determine coupon eligibility',
       'access arguments' => array('administer commerce_coupon entities'),
-      'page callback' => 'drupal_goto',
+      'page callback' => 'backdrop_goto',
       'page arguments' => array('admin/config/workflow/rules/components/manage/' . commerce_coupon_conditions_component_name($type)),
       'type' => MENU_LOCAL_TASK,
       'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
@@ -312,7 +312,7 @@ function commerce_coupon_find_coupon_autocomplete($string = '') {
     }
   }
 
-  drupal_json_output($return);
+  backdrop_json_output($return);
 }
 
 /**
@@ -467,12 +467,12 @@ function commerce_coupon_access($op, $coupon = NULL, $account = NULL) {
  *   A coupon object.
  *
  * @return array
- *   Drupal form array.
+ *   Backdrop form array.
  */
 function commerce_coupon_coupon_form_wrapper($coupon) {
   module_load_include('inc', 'commerce_coupon', 'includes/commerce_coupon.admin');
 
-  return drupal_get_form('commerce_coupon_form', $coupon);
+  return backdrop_get_form('commerce_coupon_form', $coupon);
 }
 
 /**
@@ -482,12 +482,12 @@ function commerce_coupon_coupon_form_wrapper($coupon) {
  *   A coupon object.
  *
  * @return array
- *   Drupal form array.
+ *   Backdrop form array.
  */
 function commerce_coupon_coupon_delete_form_wrapper($coupon) {
   module_load_include('inc', 'commerce_coupon', 'includes/commerce_coupon.admin');
 
-  return drupal_get_form('commerce_coupon_delete_form', $coupon);
+  return backdrop_get_form('commerce_coupon_delete_form', $coupon);
 }
 
 /**
@@ -502,13 +502,13 @@ function commerce_coupon_coupon_delete_form_wrapper($coupon) {
  *   Access denied bit or void.
  */
 function commerce_coupon_remove_coupon_from_order_callback($coupon, $order) {
-  if (!isset($_GET['token']) || !drupal_valid_token($_GET['token'], 'commerce_coupon_remove_checkout:' . $coupon->coupon_id . ':' . $order->order_id) || !commerce_checkout_access($order)) {
+  if (!isset($_GET['token']) || !backdrop_valid_token($_GET['token'], 'commerce_coupon_remove_checkout:' . $coupon->coupon_id . ':' . $order->order_id) || !commerce_checkout_access($order)) {
     return MENU_ACCESS_DENIED;
   }
 
   commerce_coupon_remove_coupon_from_order($order, $coupon);
-  drupal_set_message(t('Coupon removed from order'));
-  drupal_goto();
+  backdrop_set_message(t('Coupon removed from order'));
+  backdrop_goto();
 }
 
 /**
@@ -568,14 +568,14 @@ function commerce_coupon_commerce_discount_rule_build($rule, $discount) {
  * build and evaluate a condition set dynamically based on the inline conditions
  * for a given coupon.
  *
- * @param \EntityDrupalWrapper $coupon_wrapper
+ * @param \EntityBackdropWrapper $coupon_wrapper
  *   A wrapped coupon entity.
  *
  * @return array|bool|void
  *   Whether or not the conditions evaluate as true, or true if no evaluation is
  *   needed.
  */
-function commerce_coupon_evaluate_inline_conditions(EntityDrupalWrapper $coupon_wrapper) {
+function commerce_coupon_evaluate_inline_conditions(EntityBackdropWrapper $coupon_wrapper) {
   $wrapper_properties = $coupon_wrapper->getPropertyInfo();
 
   if (!module_exists('inline_conditions') || empty($wrapper_properties['commerce_coupon_conditions']) || !$coupon_wrapper->commerce_coupon_conditions->value()) {
@@ -608,7 +608,7 @@ function commerce_coupon_evaluate_inline_conditions(EntityDrupalWrapper $coupon_
     $execute = TRUE;
 
     // Give a chance to others module to alter the current field value.
-    drupal_alter('inline_conditions_build', $value);
+    backdrop_alter('inline_conditions_build', $value);
 
     // Build the condition parameters and add the condition.
     $parameters = array('entity:select' => $condition['entity type']) + $value['condition_settings'];
@@ -717,6 +717,17 @@ function commerce_coupon_commerce_checkout_pane_info() {
 }
 
 /**
+ * Implements hook_config_info().
+ */
+function commerce_coupon_config_info() {
+  $prefixes['commerce_coupon.settings'] = array(
+    'label' => t('Commerce Coupon settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+/**
  * Generates a new unique coupon code.
  *
  * @param string $type
@@ -741,7 +752,10 @@ function commerce_coupon_generate_coupon_code($type, $length = NULL) {
   $number_of_characters = count($characters);
   $code_found = FALSE;
   if ($length == NULL) {
-    $length = variable_get('commerce_coupon_' . $type . '_default_code_size', 8);
+    $length = config_get('commerce_coupon.settings', 'commerce_coupon_' . $type . '_default_code_size');
+    if ($length == NULL) {
+      $length = 8;
+    }
   }
 
   // We need to check if the produced coupon code is already in the
@@ -818,7 +832,7 @@ function commerce_coupon_redeem_coupon_code($code, $order, &$error) {
     else {
       // If the coupon was not added, check the static error variable - one of
       // the coupon conditions may have set something specific.
-      $error = drupal_static('commerce_coupon_error_' . strtolower($code));
+      $error = backdrop_static('commerce_coupon_error_' . strtolower($code));
 
       if (!$error) {
         // If no condition has specified an error message, set a default one.
@@ -846,9 +860,9 @@ function commerce_coupon_order_allows_coupons($order) {
 /**
  * Run the condition component for a coupon.
  *
- * @param EntityDrupalWrapper $coupon_wrapper
+ * @param EntityBackdropWrapper $coupon_wrapper
  *   A wrapped coupon entity.
- * @param EntityDrupalWrapper $order_wrapper
+ * @param EntityBackdropWrapper $order_wrapper
  *   The wrapped order entity that the coupon belongs to.
  * @param array $data
  *   An array of extra information to pass into the coupon conditions.
@@ -856,7 +870,7 @@ function commerce_coupon_order_allows_coupons($order) {
  * @return bool
  *   Whether or not the conditions pass.
  */
-function commerce_coupon_evaluate_conditions(EntityDrupalWrapper $coupon_wrapper, EntityDrupalWrapper $order_wrapper, $data = array()) {
+function commerce_coupon_evaluate_conditions(EntityBackdropWrapper $coupon_wrapper, EntityBackdropWrapper $order_wrapper, $data = array()) {
   $outcome = rules_invoke_component('coupon_type_' . $coupon_wrapper->type->value() . '_conditions', $coupon_wrapper, $order_wrapper, $data);
   $context = array(
     'coupon' => $coupon_wrapper,
@@ -865,7 +879,7 @@ function commerce_coupon_evaluate_conditions(EntityDrupalWrapper $coupon_wrapper
   );
 
   // Allow other modules to alter the outcome.
-  drupal_alter('commerce_coupon_condition_outcome', $outcome, $context);
+  backdrop_alter('commerce_coupon_condition_outcome', $outcome, $context);
 
   return $outcome;
 }
@@ -1046,7 +1060,7 @@ function commerce_coupon_get_number_of_uses($coupon_id) {
 function commerce_coupon_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_coupon') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_coupon') . '/includes/views',
   );
 }
 
@@ -1279,8 +1293,8 @@ function commerce_coupon_load_coupon_code_discounts($code) {
   $coupon = commerce_coupon_load_by_code($code);
 
   if ($coupon) {
-    /** @var \EntityDrupalWrapper $coupon_wrapper */
-    $coupon_wrapper = entity_metadata_wrapper('commerce_coupon',$coupon);
+    /** @var \EntityBackdropWrapper $coupon_wrapper */
+    $coupon_wrapper = entity_metadata_wrapper('commerce_coupon', $coupon);
     if ($coupon_wrapper->getBundle() == 'discount_coupon') {
       /** @var CommerceDiscount $discount */
       foreach ($coupon_wrapper->commerce_discount_reference->value() as $discount) {
@@ -1391,7 +1405,7 @@ function commerce_coupon_commerce_cart_order_refresh($order_wrapper) {
       // Remove invalid coupons.
       commerce_coupon_remove_coupon_from_order($order, $coupon, FALSE);
 
-      $error = &drupal_static('commerce_coupon_error_' . strtolower($coupon->code));
+      $error = &backdrop_static('commerce_coupon_error_' . strtolower($coupon->code));
       if (!$error) {
         // Set a generic error message unless something has.
         $error = t('Unable to redeem coupon.');
@@ -1446,7 +1460,7 @@ function commerce_coupon_form_commerce_discount_form_alter(&$form, &$form_state)
   // We do not want to show the management tools if there are more than 100
   // coupons attached to this discount.
   $discount_wrapper = entity_metadata_wrapper('commerce_discount', $form_state['commerce_discount']);
-  $coupon_count = isset($form_state['coupons']) ? count($form_state['coupons']) : $discount_wrapper->coupon_count->value();
+  $coupon_count = isset($form_state['coupons'])?count($form_state['coupons']) : $discount_wrapper->coupon_count->value();
 
   // Establish a container.
   $form['coupons'] = array(
@@ -1455,7 +1469,7 @@ function commerce_coupon_form_commerce_discount_form_alter(&$form, &$form_state)
     '#tree' => TRUE,
     '#prefix' => '<div id="commerce-coupon-discount-coupon-form">',
     '#suffix' => '</div>',
-    '#attached' => array('css' => array(drupal_get_path('module', 'commerce_coupon') . '/css/commerce_coupon.css')),
+    '#attached' => array('css' => array(backdrop_get_path('module', 'commerce_coupon') . '/css/commerce_coupon.css')),
   );
 
   if ($coupon_count > 100) {
@@ -1481,7 +1495,7 @@ function commerce_coupon_form_commerce_discount_form_alter(&$form, &$form_state)
     // Keep track of these so we know which to get rid of at the end.
     $form_state['original_coupons'] = $form_state['coupons'];
   }
-  $coupons =& $form_state['coupons'];
+  $coupons = &$form_state['coupons'];
 
   // Handle certain triggers.
   switch ($trigger) {
@@ -1759,7 +1773,7 @@ function commerce_coupon_commerce_discount_delete($discount) {
 /**
  * Determine whether a coupon has a particular discount.
  *
- * @param EntityDrupalWrapper $coupon_wrapper
+ * @param EntityBackdropWrapper $coupon_wrapper
  *   The coupon to check.
  * @param string $discount_name
  *   The discount name to check for.
@@ -1767,7 +1781,7 @@ function commerce_coupon_commerce_discount_delete($discount) {
  * @return void|bool
  *   Whether or not the coupon references a particular discount.
  */
-function commerce_coupon_coupon_has_discount(EntityDrupalWrapper $coupon_wrapper, $discount_name) {
+function commerce_coupon_coupon_has_discount(EntityBackdropWrapper $coupon_wrapper, $discount_name) {
   if ($coupon_wrapper->type->value() == 'discount_coupon') {
     foreach ($coupon_wrapper->commerce_discount_reference->value() as $discount) {
       if ($discount && $discount->name == $discount_name) {
@@ -1789,11 +1803,11 @@ function commerce_coupon_form_attach_coupons_validate(&$form, &$form_state) {
   // Determine whether it is the "add new" form or an edit form.
   if (isset($coupon)) {
     if (isset($coupon->delta)) {
-      $coupon_fields_form =& $form['coupons']['manage_coupons'][$coupon->delta]['coupon_form']['commerce_coupon_fields'];
+      $coupon_fields_form = &$form['coupons']['manage_coupons'][$coupon->delta]['coupon_form']['commerce_coupon_fields'];
       $coupon_values = $form_state['values']['coupons']['manage_coupons'][$coupon->delta]['coupon_form'];
     }
     else {
-      $coupon_fields_form =& $form['coupons']['coupon_form']['commerce_coupon_fields'];
+      $coupon_fields_form = &$form['coupons']['coupon_form']['commerce_coupon_fields'];
       $coupon_values = $form_state['values']['coupons']['coupon_form'];
     }
   }
@@ -1932,7 +1946,7 @@ function commerce_coupon_attach_ajax_coupon_entity_form(&$form, &$form_state, $c
  */
 function commerce_coupon_code_validate_staged($element, &$form_state) {
   $code = $element['#value'];
-  $coupon_form_values = drupal_array_get_nested_value($form_state['values'], array_slice($element['#array_parents'], 0, -1));
+  $coupon_form_values = backdrop_array_get_nested_value($form_state['values'], array_slice($element['#array_parents'], 0, -1));
   $generate = $coupon_form_values['generate'];
 
   if (isset($form_state['coupons']) && !$generate) {
@@ -1950,9 +1964,9 @@ function commerce_coupon_code_validate_staged($element, &$form_state) {
  * Attach a coupon entity form to a form or form fragment.
  *
  * @param array $form
- *   Drupal form array.
+ *   Backdrop form array.
  * @param array $form_state
- *   Drupal formstate array.
+ *   Backdrop formstate array.
  * @param object $coupon
  *   Coupon entity.
  * @param bool $show_discounts_field
@@ -2016,7 +2030,7 @@ function commerce_coupon_attach_coupon_entity_form(array &$form, array &$form_st
   );
 
   // Allow other modules to alter this form whereever it appears.
-  drupal_alter('commerce_coupon_coupon_entity_form', $form, $form_state, $coupon);
+  backdrop_alter('commerce_coupon_coupon_entity_form', $form, $form_state, $coupon);
 }
 
 /**
@@ -2034,12 +2048,12 @@ function theme_commerce_coupon_manage_discount_coupons($variables) {
       $remove_button = $element['remove_coupon'];
 
       $edit_button_cell = array(
-        'data' => drupal_render($edit_button),
+        'data' => backdrop_render($edit_button),
         'class' => array('commerce-coupon-discount-coupon-edit-cell'),
       );
 
       $remove_button_cell = array(
-        'data' => drupal_render($remove_button),
+        'data' => backdrop_render($remove_button),
         'class' => array('commerce-coupon-discount-coupon-remove-cell'),
       );
 
@@ -2053,7 +2067,7 @@ function theme_commerce_coupon_manage_discount_coupons($variables) {
       $form = $element['coupon_form'];
       // Single cell row.
       $row = array(array(
-        'data' => drupal_render($form),
+        'data' => backdrop_render($form),
         'colspan' => 3,
         ),
       );
@@ -2082,7 +2096,7 @@ function commerce_coupon_discount_coupons_summary($variables) {
  */
 function commerce_coupon_validate_code($element, &$form_state) {
   $path = implode('][', $element['#array_parents']);
-  $coupon_form_values = drupal_array_get_nested_value($form_state['values'], array_slice($element['#array_parents'], 0, -1));
+  $coupon_form_values = backdrop_array_get_nested_value($form_state['values'], array_slice($element['#array_parents'], 0, -1));
   // Ensure code is not empty unless we are generating a random one.
   if (empty($coupon_form_values['generate'])) {
     if (empty($element['#value'])) {
@@ -2235,8 +2249,7 @@ function commerce_coupon_commerce_coupon_legacy_mapping($coupon) {
 /**
  * Stub function so that coupon type modules do not crash when they disable.
  */
-function commerce_coupon_type_disable() {
-}
+function commerce_coupon_type_disable() { }
 
 /**
  * Implements hook_update_dependencies().
@@ -2273,4 +2286,40 @@ function commerce_coupon_field_widget_form_alter(&$element, &$form_state, $conte
       ),
     );
   }
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_coupon_autoload_info() {
+  return array(
+    'CommerceCouponMetadataController' => 'commerce_coupon.info.inc',
+    'CommerceCouponEntityController' => 'includes/commerce_coupon.controller.inc',
+    'commerce_coupon_handler_area_cart_form' => 'includes/views/handlers/commerce_coupon_handler_area_cart_form.inc',
+    'commerce_coupon_handler_argument_coupon_code' => 'includes/views/handlers/commerce_coupon_handler_argument_coupon_code.inc',
+    'commerce_coupon_handler_argument_coupon_id' => 'includes/views/handlers/commerce_coupon_handler_argument_coupon_id.inc',
+    'commerce_coupon_handler_field_coupon_delete' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_delete.inc',
+    'commerce_coupon_handler_field_coupon_edit' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_edit.inc',
+    'commerce_coupon_handler_field_coupon_link' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_link.inc',
+    'commerce_coupon_handler_field_coupon_order_remove' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_order_remove.inc',
+    'commerce_coupon_handler_field_discount_value_display' => 'includes/views/handlers/commerce_coupon_handler_field_discount_value_display.inc',
+  );
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_coupon_autoload_info() {
+  return array(
+    'CommerceCouponMetadataController' => 'commerce_coupon.info.inc',
+    'CommerceCouponEntityController' => 'includes/commerce_coupon.controller.inc',
+    'commerce_coupon_handler_area_cart_form' => 'includes/views/handlers/commerce_coupon_handler_area_cart_form.inc',
+    'commerce_coupon_handler_argument_coupon_code' => 'includes/views/handlers/commerce_coupon_handler_argument_coupon_code.inc',
+    'commerce_coupon_handler_argument_coupon_id' => 'includes/views/handlers/commerce_coupon_handler_argument_coupon_id.inc',
+    'commerce_coupon_handler_field_coupon_delete' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_delete.inc',
+    'commerce_coupon_handler_field_coupon_edit' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_edit.inc',
+    'commerce_coupon_handler_field_coupon_link' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_link.inc',
+    'commerce_coupon_handler_field_coupon_order_remove' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_order_remove.inc',
+    'commerce_coupon_handler_field_discount_value_display' => 'includes/views/handlers/commerce_coupon_handler_field_discount_value_display.inc',
+  );
 }

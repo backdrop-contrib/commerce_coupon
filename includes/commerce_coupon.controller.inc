@@ -8,7 +8,7 @@
 /**
  * Commerce Coupon controller class.
  */
-class CommerceCouponEntityController extends DrupalCommerceEntityController {
+class CommerceCouponEntityController extends BackdropCommerceEntityController {
 
   public $code;
 

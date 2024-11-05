@@ -5,7 +5,7 @@
  * Installation tasks for Commerce Coupon Date.
  */
 
-/*
+/**
  * Implements hook_install().
  */
 function commerce_coupon_date_install() {

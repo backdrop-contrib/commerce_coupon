@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Implements hook_inline_conditions_info.
+ * Implements hook_inline_conditions_info().
  */
 function commerce_coupon_date_inline_conditions_info() {
   $conditions['commerce_coupon_date_evaluate_date'] = array(
@@ -34,7 +34,7 @@ function commerce_coupon_date_evaluate_date_build($coupon, $start = NULL, $end =
 
   if ($start && $end) {
     $outcome = $lower_pass && $upper_pass;
-    $message = t('Unfortunately, this coupon is only valid starting %start until %end.',  array('%start' => format_date($start, 'custom', $date_format), '%end' => format_date($end, 'custom', $date_format)));
+    $message = t('Unfortunately, this coupon is only valid starting %start until %end.',   array('%start' => format_date($start, 'custom', $date_format), '%end' => format_date($end, 'custom', $date_format)));
   }
   else if ($end) {
     $outcome = $upper_pass;
@@ -46,7 +46,7 @@ function commerce_coupon_date_evaluate_date_build($coupon, $start = NULL, $end =
   }
 
   if (!$outcome) {
-    $error = &drupal_static('commerce_coupon_error_' . strtolower($coupon->code));
+    $error = &backdrop_static('commerce_coupon_error_' . strtolower($coupon->code));
     $error = $message;
   }
 
@@ -90,7 +90,7 @@ function commerce_coupon_date_range_start_validate($element, &$form_state, $form
   $type = array_pop($element['#parents']);
   $parents = $element['#parents'];
   $parents[] = $type == 'start' ? 'end' : 'start';
-  $comp_value = drupal_array_get_nested_value($form_state['values'], $parents);
+  $comp_value = backdrop_array_get_nested_value($form_state['values'], $parents);
 
   if (!empty($comp_value['date'])) {
     // Get a timestamp for start date.

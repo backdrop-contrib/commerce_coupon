@@ -16,7 +16,7 @@ function commerce_coupon_default_rules_configuration() {
 
   $rule
     ->event('commerce_coupon_applied_to_cart')
-    ->action('drupal_message', array(
+    ->action('backdrop_message', array(
       'message' => t('Coupon code applied.'),
     ));
 
@@ -63,7 +63,7 @@ function commerce_coupon_default_rules_configuration() {
       ));
 
     // Allow other modules to alter the rule.
-    drupal_alter('commerce_coupon_condition_component', $rule, $machine_name);
+    backdrop_alter('commerce_coupon_condition_component', $rule, $machine_name);
 
     $rules[commerce_coupon_conditions_component_name($machine_name)] = $rule;
   }

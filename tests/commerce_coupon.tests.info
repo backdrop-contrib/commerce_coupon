@@ -1,0 +1,18 @@
+[CommerceCouponTestBase]
+name = CommerceCouponTestBase
+description = CommerceCouponTestBase
+group = commerce_coupon
+file = commerce_coupon.test
+
+[CommerceCouponTest]
+name = Coupons
+description = Test coupons UI and functionality
+group = Commerce Coupon
+file = commerce_coupon.test
+
+[CommerceCouponLoadCouponCodeDiscountsTest]
+name = Coupons commerce_coupon_load_coupon_code_discounts
+description = Test commerce_coupon_load_coupon_code_discounts
+group = Commerce Coupon
+file = commerce_coupon.test
+

@@ -10,10 +10,11 @@
  */
 function commerce_coupon_type_settings_form($form, &$form_state, $coupon_type) {
   $name = $coupon_type['type'];
+  $form['#config'] = 'commerce_coupon.settings';
   $form['commerce_coupon_' . $name . '_default_code_size'] = array(
     '#type' => 'textfield',
     '#title' => t('Coupon Code Length'),
-    '#default_value' => variable_get('commerce_coupon_' . $name . '_default_code_size', 8),
+    '#default_value' => config_get('commerce_coupon.settings', 'commerce_coupon_' . $name . '_default_code_size'),
     '#description' => t('Set the coupon code length for auto generated codes of this type.'),
   );
 
@@ -58,7 +59,7 @@ function commerce_coupon_add_page() {
   // available.
   if (count($content) == 1) {
     $item = array_shift($content);
-    drupal_goto($item['href']);
+    backdrop_goto($item['href']);
   }
 
   return theme('commerce_coupon_add_list', array('content' => $content));
@@ -111,7 +112,7 @@ function theme_commerce_coupon_type_admin_overview(array $variables) {
  */
 function commerce_coupon_form($form, &$form_state, $coupon) {
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_coupon') . '/includes/commerce_coupon.admin.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_coupon') . '/includes/commerce_coupon.admin.inc';
   $form_state['commerce_coupon'] = $coupon;
 
   commerce_coupon_attach_coupon_entity_form($form, $form_state, $coupon, TRUE);
@@ -167,7 +168,7 @@ function commerce_coupon_form_submit(&$form, &$form_state) {
   }
 
   // Redirect based on the button clicked.
-  drupal_set_message(t('Coupon saved.'));
+  backdrop_set_message(t('Coupon saved.'));
 }
 
 /**
@@ -177,7 +178,7 @@ function commerce_coupon_delete_form($form, &$form_state, $coupon) {
   $form_state['commerce_coupon'] = $coupon;
 
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_coupon') . '/includes/commerce_coupon.admin.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_coupon') . '/includes/commerce_coupon.admin.inc';
   $form['#submit'][] = 'commerce_coupon_delete_form_submit';
   $form = confirm_form($form, t('Are you sure you want to delete the coupon with code %code?', array('%code' => $coupon->code)), 'admin/commerce/coupons', '<p>' . t('Deleting this coupon cannot be undone.') . '</p>', t('Delete'), t('Cancel'), 'confirm');
 
@@ -216,11 +217,11 @@ function commerce_coupon_delete_form_submit($form, &$form_state) {
     if ($discounts) {
       _commerce_discount_rebuild_rules_config($discounts);
     }
-    drupal_set_message(t('%code has been deleted.', array('%code' => $code)));
+    backdrop_set_message(t('%code has been deleted.', array('%code' => $code)));
     watchdog('commerce_coupon', 'Deleted coupon %code.', array('%code' => $code), WATCHDOG_NOTICE);
   }
   else {
-    drupal_set_message(t('%code could not be deleted.', array('%code' => $code)), 'error');
+    backdrop_set_message(t('%code could not be deleted.', array('%code' => $code)), 'error');
   }
   $form_state['redirect'] = 'admin/commerce/coupons';
 }

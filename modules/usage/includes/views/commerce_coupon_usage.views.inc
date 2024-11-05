@@ -7,7 +7,7 @@
 /**
  * Commerce Coupon usage transaction entity Views definitions.
  */
-class CommerceCouponUsageTransactionViewsController extends EntityDefaultViewsController {
+class CommerceCouponUsageTransactionViewsController extends EntityPlusDefaultViewsController {
 
   /**
    * Override EntityDefaultViewsController::views_data().

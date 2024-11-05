@@ -1,6 +1,18 @@
 <?php
 
 /**
+ * Implements hook_autoload_info().
+ */
+function commerce_coupon_usage_autoload_info() {
+  return array(
+    'CommerceCouponUsageTransactionEntityController' => 'includes/commerce_coupon_usage.controller.inc',
+    'CommerceCouponUsageTransactionViewsController' => 'includes/views/commerce_coupon_usage.views.inc',
+    'commerce_coupon_usage_views_handler_area_usage_summary' => 'includes/views/handlers/commerce_coupon_usage_views_handler_area_usage_summary.inc',
+    'commerce_coupon_usage_views_handler_field_usage' => 'includes/views/handlers/commerce_coupon_usage_views_handler_field_usage.inc',
+  );
+}
+
+/**
  * Returns the number of uses for this coupon.
  *
  * @param int $coupon_id
@@ -113,7 +125,7 @@ function commerce_coupon_usage_evaluate_usage_build($coupon, $max_usage) {
 
   if ($usage >= $max_usage) {
     // Set an error message in this static variable.
-    $error = &drupal_static('commerce_coupon_error_' . strtolower($coupon->code));
+    $error = &backdrop_static('commerce_coupon_error_' . strtolower($coupon->code));
     $error = t('Coupon has exceeded maximum number of uses.');
   }
   else {
@@ -151,7 +163,7 @@ function commerce_coupon_usage_commerce_coupon_final_checkout_transaction_rollba
 /**
  * Implements hook_commerce_coupon_final_checkout_validate().
  */
-function commerce_coupon_usage_commerce_coupon_final_checkout_validate($form, $form_state, EntityDrupalWrapper $order_wrapper) {
+function commerce_coupon_usage_commerce_coupon_final_checkout_validate($form, $form_state, EntityBackdropWrapper $order_wrapper) {
   if (!commerce_coupon_order_allows_coupons($order_wrapper->value())) {
     return;
   }
@@ -324,13 +336,13 @@ function commerce_coupon_usage_transaction_delete_multiple($transaction_ids) {
   return entity_get_controller('commerce_coupon_usage_transaction')->delete($transaction_ids);
 }
 
-/*
+/**
  * Implements hook_views_api().
  */
 function commerce_coupon_usage_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_coupon_usage') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_coupon_usage') . '/includes/views',
   );
 }
 
@@ -361,7 +373,7 @@ function theme_commerce_coupon_usage_summary(array $variables) {
       $output[] = t('Maximum uses: @max_usage', array('@max_usage' => $max_usage));
     }
     if ($link_text) {
-      $output[] = l($link_text, 'admin/commerce/coupons/' . $coupon_id . '/usage', array('query' => drupal_get_destination()));
+      $output[] = l($link_text, 'admin/commerce/coupons/' . $coupon_id . '/usage', array('query' => backdrop_get_destination()));
     }
 
     return implode('<br/>', $output);
@@ -385,7 +397,7 @@ function commerce_coupon_usage_record_usage($order) {
 
   $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
 
-  foreach($order_wrapper->commerce_coupons as $coupon_wrapper) {
+  foreach ($order_wrapper->commerce_coupons as $coupon_wrapper) {
     if ($coupon_wrapper->value()) {
       // Write a usage record. Hard to really know when the transaction took
       // place so just use the order created column.
@@ -425,7 +437,7 @@ function commerce_coupon_usage_commerce_order_update($order) {
 
         $transaction_id = commerce_coupon_usage_transaction_write($coupon_id, $order->order_id);
         if (!$transaction_id) {
-          drupal_set_message(t('You have exceeded the maximum usage settings for
+          backdrop_set_message(t('You have exceeded the maximum usage settings for
             coupon %code. Its usage on this order has not been recorded - you must
             increase its maximum usage value, remove it from this order and add it again.',
             array('%code' => $coupon_wrapper->code->value())), 'warning');
@@ -465,7 +477,7 @@ function commerce_coupon_usage_commerce_order_insert($order) {
     foreach ($order_wrapper->commerce_coupons as $coupon_wrapper) {
       $transaction_id = commerce_coupon_usage_transaction_write($coupon_wrapper->coupon_id->value(), $order->order_id);
       if (!$transaction_id) {
-        drupal_set_message(t('You have exceeded the maximum usage settings for
+        backdrop_set_message(t('You have exceeded the maximum usage settings for
           coupon %code. Its usage on this order cannot be recorded until you
           increase its maximum usage settings.', array('%code' => $coupon_wrapper->code->value())), 'warning');
       }
@@ -484,11 +496,11 @@ function commerce_coupon_usage_commerce_order_delete($order) {
  * Fetch order statuses indicating order coupons should have usage tracked.
  */
 function commerce_coupon_usage_tracked_order_statuses() {
-  $statuses = &drupal_static(__FUNCTION__);
+  $statuses = &backdrop_static(__FUNCTION__);
   if (empty($statuses)) {
     $statuses = array_merge(commerce_order_statuses(array('state' => 'completed')), commerce_order_statuses(array('state' => 'pending')));
     $statuses = array_keys($statuses);
-    drupal_alter('commerce_coupon_usage_tracked_order_statuses', $statuses);
+    backdrop_alter('commerce_coupon_usage_tracked_order_statuses', $statuses);
   }
   return $statuses;
 }
@@ -503,7 +515,7 @@ function commerce_coupon_usage_tracked_order_statuses() {
  */
 function commerce_coupon_reset_usage($order_ids = FALSE, $coupon_ids = FALSE) {
   $query = db_delete('commerce_coupon_usage_transaction');
-  if($order_ids) {
+  if ($order_ids) {
     $query->condition('order_id', $order_ids);
   }
 

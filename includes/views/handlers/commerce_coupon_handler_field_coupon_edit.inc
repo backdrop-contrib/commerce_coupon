@@ -21,7 +21,7 @@ class commerce_coupon_handler_field_coupon_edit extends commerce_coupon_handler_
 
     $text = !empty($this->options['text']) ? $this->options['text'] : t('Edit');
 
-    return l($text, 'admin/commerce/coupons/' . $coupon_id . '/edit', array('query' => drupal_get_destination()));
+    return l($text, 'admin/commerce/coupons/' . $coupon_id . '/edit', array('query' => backdrop_get_destination()));
   }
 
 }
