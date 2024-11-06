@@ -2305,21 +2305,3 @@ function commerce_coupon_autoload_info() {
     'commerce_coupon_handler_field_discount_value_display' => 'includes/views/handlers/commerce_coupon_handler_field_discount_value_display.inc',
   );
 }
-
-/**
- * Implements hook_autoload_info().
- */
-function commerce_coupon_autoload_info() {
-  return array(
-    'CommerceCouponMetadataController' => 'commerce_coupon.info.inc',
-    'CommerceCouponEntityController' => 'includes/commerce_coupon.controller.inc',
-    'commerce_coupon_handler_area_cart_form' => 'includes/views/handlers/commerce_coupon_handler_area_cart_form.inc',
-    'commerce_coupon_handler_argument_coupon_code' => 'includes/views/handlers/commerce_coupon_handler_argument_coupon_code.inc',
-    'commerce_coupon_handler_argument_coupon_id' => 'includes/views/handlers/commerce_coupon_handler_argument_coupon_id.inc',
-    'commerce_coupon_handler_field_coupon_delete' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_delete.inc',
-    'commerce_coupon_handler_field_coupon_edit' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_edit.inc',
-    'commerce_coupon_handler_field_coupon_link' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_link.inc',
-    'commerce_coupon_handler_field_coupon_order_remove' => 'includes/views/handlers/commerce_coupon_handler_field_coupon_order_remove.inc',
-    'commerce_coupon_handler_field_discount_value_display' => 'includes/views/handlers/commerce_coupon_handler_field_discount_value_display.inc',
-  );
-}

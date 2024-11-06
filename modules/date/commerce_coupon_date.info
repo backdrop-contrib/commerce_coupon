@@ -1,5 +1,6 @@
 name = Commerce Coupon Date
 description = Set a valid date range for coupons
+package = "Commerce (contrib)"
 backdrop = 1.x
 type = module
 
